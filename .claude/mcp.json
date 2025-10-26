@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "sui-docs": {
+      "command": "node",
+      "args": [
+        ".claude/mcp-servers/sui-docs-server/index.js"
+      ],
+      "cwd": "/Users/manasmunjial/Documents/CalHacks25/DecentraSign",
+      "env": {},
+      "disabled": false,
+      "alwaysAllow": []
+    }
+  }
+}

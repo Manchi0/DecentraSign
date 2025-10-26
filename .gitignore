@@ -2,3 +2,6 @@
 /frontend/.env
 /move/build
 /seal-app/frontend/node_modules
+
+*.md
+!README.md

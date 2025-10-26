@@ -1,0 +1,30 @@
+{
+  "name": "sui-docs-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Sui and Move documentation",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "sui-docs-server": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "cheerio": "^1.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "sui",
+    "move",
+    "documentation",
+    "blockchain"
+  ],
+  "author": "",
+  "license": "MIT"
+}
