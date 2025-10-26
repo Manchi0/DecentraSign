@@ -2,3 +2,5 @@
 /frontend/.env
 /move/build
 /seal-app/frontend/node_modules
+/transac-frontend/move/counter/build
+/transac-frontend/node_modules
