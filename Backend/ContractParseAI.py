@@ -24,7 +24,8 @@ class ContractParser:
         """
         self.api_key = api_key or os.getenv('ANTHROPIC_API_KEY')
         if not self.api_key:
-            raise ValueError("ANTHROPIC_API_KEY must be set in environment or passed to constructor")
+            raise ValueError(
+                "ANTHROPIC_API_KEY must be set in environment or passed to constructor")
 
         self.client = Anthropic(api_key=self.api_key)
         self.model = "claude-sonnet-4-5"  # Updated to latest model
@@ -56,7 +57,8 @@ class ContractParser:
                 with open(file_path, 'r', encoding='latin-1') as f:
                     return f.read()
         else:
-            raise ValueError(f"Unsupported file format: {file_ext}. Only PDF, DOCX, and TXT are supported.")
+            raise ValueError(
+                f"Unsupported file format: {file_ext}. Only PDF, DOCX, and TXT are supported.")
 
     def _extract_text_from_pdf(self, pdf_path: str) -> str:
         """
@@ -71,15 +73,44 @@ class ContractParser:
         try:
             import fitz  # PyMuPDF
         except ImportError as e:
-            raise RuntimeError("PyMuPDF (fitz) is required. Install with: pip install pymupdf") from e
+            raise RuntimeError(
+                "PyMuPDF (fitz) is required. Install with: pip install pymupdf") from e
         try:
             import pytesseract
         except ImportError as e:
-            raise RuntimeError("pytesseract is required for OCR. Install with: pip install pytesseract") from e
+            raise RuntimeError(
+                "pytesseract is required for OCR. Install with: pip install pytesseract") from e
         try:
             from PIL import Image
         except ImportError as e:
-            raise RuntimeError("Pillow is required for OCR. Install with: pip install Pillow") from e
+            raise RuntimeError(
+                "Pillow is required for OCR. Install with: pip install Pillow") from e
+
+        # Configure Tesseract path for Windows
+        import platform
+        if platform.system() == "Windows":
+            # Common Windows installation paths
+            tesseract_paths = [
+                r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+                r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+                r"C:\Users\{}\AppData\Local\Programs\Tesseract-OCR\tesseract.exe".format(
+                    os.getenv('USERNAME', '')),
+            ]
+
+            tesseract_found = False
+            for path in tesseract_paths:
+                if os.path.exists(path):
+                    pytesseract.pytesseract.tesseract_cmd = path
+                    tesseract_found = True
+                    print(f"Found Tesseract at: {path}")
+                    break
+
+            if not tesseract_found:
+                raise RuntimeError(
+                    "Tesseract OCR not found. Please install Tesseract OCR from "
+                    "https://github.com/UB-Mannheim/tesseract/wiki and ensure it's in your PATH, "
+                    "or install it in one of the standard locations."
+                )
 
         text = ""
         pdf_path = Path(pdf_path)
@@ -90,7 +121,8 @@ class ContractParser:
                 page = doc[page_index]
                 # Render page to image
                 pix = page.get_pixmap()
-                img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                img = Image.frombytes(
+                    "RGB", [pix.width, pix.height], pix.samples)
 
                 page_text = pytesseract.image_to_string(img)
                 text += f"\n--- Page {page_index + 1} ---\n{page_text}"
@@ -111,7 +143,8 @@ class ContractParser:
         try:
             from docx import Document
         except ImportError as e:
-            raise RuntimeError("python-docx is required. Install with: pip install python-docx") from e
+            raise RuntimeError(
+                "python-docx is required. Install with: pip install python-docx") from e
 
         try:
             doc = Document(docx_path)
@@ -125,7 +158,8 @@ class ContractParser:
             # Extract text from tables
             for table in doc.tables:
                 for row in table.rows:
-                    row_text = ' | '.join(cell.text.strip() for cell in row.cells)
+                    row_text = ' | '.join(cell.text.strip()
+                                          for cell in row.cells)
                     if row_text.strip():
                         full_text.append(row_text)
 
@@ -287,10 +321,12 @@ IMPORTANT:
                     try:
                         if isinstance(data['payments'][field], str):
                             # Remove currency symbols and commas
-                            clean_value = data['payments'][field].replace('$', '').replace(',', '').strip()
+                            clean_value = data['payments'][field].replace(
+                                '$', '').replace(',', '').strip()
                             data['payments'][field] = float(clean_value)
                         elif isinstance(data['payments'][field], (int, float)):
-                            data['payments'][field] = float(data['payments'][field])
+                            data['payments'][field] = float(
+                                data['payments'][field])
                     except (ValueError, AttributeError):
                         pass
 
@@ -301,10 +337,12 @@ IMPORTANT:
                     try:
                         if isinstance(data['penalties'][field], str):
                             # Remove currency symbols and commas
-                            clean_value = data['penalties'][field].replace('$', '').replace(',', '').strip()
+                            clean_value = data['penalties'][field].replace(
+                                '$', '').replace(',', '').strip()
                             data['penalties'][field] = float(clean_value)
                         elif isinstance(data['penalties'][field], (int, float)):
-                            data['penalties'][field] = float(data['penalties'][field])
+                            data['penalties'][field] = float(
+                                data['penalties'][field])
                     except (ValueError, AttributeError):
                         pass
 
@@ -354,7 +392,8 @@ IMPORTANT:
 
         # Validate extracted text
         if not contract_text or len(contract_text.strip()) < 100:
-            raise ValueError("Extracted text is too short. The file may be corrupted or empty.")
+            raise ValueError(
+                "Extracted text is too short. The file may be corrupted or empty.")
 
         # Parse contract
         parsed_data = self.parse_contract(contract_text)
@@ -383,7 +422,8 @@ IMPORTANT:
 
         # Contract Type
         if 'contract_type' in parsed_data:
-            summary_lines.append(f"\nContract Type: {parsed_data['contract_type']}")
+            summary_lines.append(
+                f"\nContract Type: {parsed_data['contract_type']}")
 
         # Parties
         if 'parties' in parsed_data and parsed_data['parties']:
@@ -391,12 +431,14 @@ IMPORTANT:
             parties = parsed_data['parties']
             if 'client' in parties and parties['client']:
                 client = parties['client']
-                summary_lines.append(f"  Client: {client.get('name', 'N/A')} ({client.get('role', 'N/A')})")
+                summary_lines.append(
+                    f"  Client: {client.get('name', 'N/A')} ({client.get('role', 'N/A')})")
                 if client.get('email'):
                     summary_lines.append(f"    Email: {client['email']}")
             if 'contractor' in parties and parties['contractor']:
                 contractor = parties['contractor']
-                summary_lines.append(f"  Contractor: {contractor.get('name', 'N/A')} ({contractor.get('role', 'N/A')})")
+                summary_lines.append(
+                    f"  Contractor: {contractor.get('name', 'N/A')} ({contractor.get('role', 'N/A')})")
                 if contractor.get('email'):
                     summary_lines.append(f"    Email: {contractor['email']}")
             if 'payer' in parties and parties['payer']:
@@ -406,7 +448,8 @@ IMPORTANT:
                     summary_lines.append(f"    Address: {payer['address']}")
             if 'receiver' in parties and parties['receiver']:
                 receiver = parties['receiver']
-                summary_lines.append(f"  Receiver: {receiver.get('name', 'N/A')}")
+                summary_lines.append(
+                    f"  Receiver: {receiver.get('name', 'N/A')}")
                 if receiver.get('address'):
                     summary_lines.append(f"    Address: {receiver['address']}")
 
@@ -416,11 +459,14 @@ IMPORTANT:
             payments = parsed_data['payments']
             currency = payments.get('currency', 'USD')
             if payments.get('upfront'):
-                summary_lines.append(f"  Upfront: ${payments['upfront']:,.2f} {currency}")
+                summary_lines.append(
+                    f"  Upfront: ${payments['upfront']:,.2f} {currency}")
             if payments.get('completion'):
-                summary_lines.append(f"  On Completion: ${payments['completion']:,.2f} {currency}")
+                summary_lines.append(
+                    f"  On Completion: ${payments['completion']:,.2f} {currency}")
             if payments.get('total'):
-                summary_lines.append(f"  Total: ${payments['total']:,.2f} {currency}")
+                summary_lines.append(
+                    f"  Total: ${payments['total']:,.2f} {currency}")
             if payments.get('schedule'):
                 summary_lines.append(f"  Schedule: {payments['schedule']}")
 
@@ -429,7 +475,8 @@ IMPORTANT:
             summary_lines.append("\nTIMELINE:")
             deadlines = parsed_data['deadlines']
             if deadlines.get('start_date'):
-                summary_lines.append(f"  Start Date: {deadlines['start_date']}")
+                summary_lines.append(
+                    f"  Start Date: {deadlines['start_date']}")
             if deadlines.get('final'):
                 summary_lines.append(f"  Deadline: {deadlines['final']}")
             if deadlines.get('milestones') and len(deadlines['milestones']) > 0:
@@ -442,9 +489,11 @@ IMPORTANT:
             penalties = parsed_data['penalties']
             if penalties.get('late_fee_per_day'):
                 summary_lines.append("\nPENALTIES:")
-                summary_lines.append(f"  Late Fee: ${penalties['late_fee_per_day']:,.2f}/day")
+                summary_lines.append(
+                    f"  Late Fee: ${penalties['late_fee_per_day']:,.2f}/day")
                 if penalties.get('max_penalty'):
-                    summary_lines.append(f"  Maximum Penalty: ${penalties['max_penalty']:,.2f}")
+                    summary_lines.append(
+                        f"  Maximum Penalty: ${penalties['max_penalty']:,.2f}")
 
         # Deliverables
         if 'deliverables' in parsed_data and parsed_data['deliverables']:
