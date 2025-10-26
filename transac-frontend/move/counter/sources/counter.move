@@ -4,6 +4,7 @@ module counter::payments {
     use 0x2::event;
     use 0x2::object::{UID};
     use 0x2::clock::{Clock};
+    use 0x2::table::{Self, Table};
 
     // Events
     public struct PaymentRequestCreated has copy, drop {
@@ -44,6 +45,7 @@ module counter::payments {
     public struct PaymentRequestManager has key {
         id: UID,
         next_request_id: u64,
+        sent_requests: Table<address, vector<u64>>, // Track sent requests by sender
     }
 
     // Initialize the payment request manager
@@ -51,6 +53,7 @@ module counter::payments {
         let manager = PaymentRequestManager {
             id: object::new(ctx),
             next_request_id: 0,
+            sent_requests: table::new(ctx),
         };
         transfer::share_object(manager);
     }
@@ -80,6 +83,17 @@ module counter::payments {
         };
 
         transfer::public_transfer(request, recipient);
+
+        // Track this request as sent by the requester
+        let sender = tx_context::sender(ctx);
+        if (table::contains(&manager.sent_requests, sender)) {
+            let mut sent_list = table::borrow_mut(&mut manager.sent_requests, sender);
+            vector::push_back(sent_list, request_id);
+        } else {
+            let mut sent_list = vector::empty();
+            vector::push_back(&mut sent_list, request_id);
+            table::add(&mut manager.sent_requests, sender, sent_list);
+        };
 
         event::emit(PaymentRequestCreated {
             request_id,
@@ -135,5 +149,23 @@ module counter::payments {
         transfer::public_transfer(to_send, recipient);
         transfer::public_transfer(coin_in, tx_context::sender(ctx));
         event::emit(PaymentSent { from: tx_context::sender(ctx), to: recipient, amount });
+    }
+
+    // Get sent request IDs for a user
+    public fun get_sent_request_ids(manager: &PaymentRequestManager, sender: address): vector<u64> {
+        if (table::contains(&manager.sent_requests, sender)) {
+            *table::borrow(&manager.sent_requests, sender)
+        } else {
+            vector::empty()
+        }
+    }
+
+    // Get the total number of sent requests for a user
+    public fun get_sent_request_count(manager: &PaymentRequestManager, sender: address): u64 {
+        if (table::contains(&manager.sent_requests, sender)) {
+            vector::length(table::borrow(&manager.sent_requests, sender))
+        } else {
+            0
+        }
     }
 }

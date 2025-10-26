@@ -14,7 +14,6 @@ import {
   Box,
   Separator,
   Badge,
-  Tabs,
 } from "@radix-ui/themes";
 import { useNetworkVariable } from "./networkConfig";
 import { useState, useEffect } from "react";
@@ -52,9 +51,6 @@ export function PaymentRequests({
   const receivedRequests = requests.filter(
     (req) => req.recipient === currentAccount?.address,
   );
-  // Sent: Requests you created (you don't own these anymore, they're with recipients)
-  // For now, we'll show an empty list for sent requests since we can't track them
-  const sentRequests: PaymentRequest[] = [];
 
   // Fetch payment request objects from the blockchain
   const { data: objectsData, refetch } = useSuiClientQuery("getOwnedObjects", {
@@ -152,38 +148,93 @@ export function PaymentRequests({
         Payment Requests
       </Heading>
 
-      <Tabs.Root defaultValue="received">
-        <Tabs.List>
-          <Tabs.Trigger value="received">
-            Received ({receivedRequests.length})
-          </Tabs.Trigger>
-          <Tabs.Trigger value="sent">Sent ({sentRequests.length})</Tabs.Trigger>
-        </Tabs.List>
+      <Flex direction="column" gap="3">
+        {loading ? (
+          <Card size="3">
+            <Box p="4" style={{ textAlign: "center" }}>
+              <Flex align="center" justify="center" gap="2">
+                <ClipLoader size={20} />
+                <Text size="3">Loading payment requests...</Text>
+              </Flex>
+            </Box>
+          </Card>
+        ) : receivedRequests.length === 0 ? (
+          <Card size="3">
+            <Box p="4" style={{ textAlign: "center" }}>
+              <Text size="3" color="gray">
+                No payment requests received. Others can request payments from
+                you!
+              </Text>
+            </Box>
+          </Card>
+        ) : (
+          receivedRequests.map((request) => (
+            <Card key={request.id} size="3">
+              <Box p="4">
+                <Flex direction="column" gap="3">
+                  <Flex justify="between" align="center">
+                    <Text size="3" weight="bold">
+                      {request.description}
+                    </Text>
+                    <Badge
+                      color={
+                        request.isPaid
+                          ? "green"
+                          : isOverdue(request.dueDate)
+                            ? "red"
+                            : "blue"
+                      }
+                    >
+                      {request.isPaid
+                        ? "Paid"
+                        : isOverdue(request.dueDate)
+                          ? "Overdue"
+                          : "Pending"}
+                    </Badge>
+                  </Flex>
 
-        <Box pt="3">
-          <Tabs.Content value="received">
-            <RequestList
-              requests={receivedRequests}
-              loading={loading}
-              onAcceptRequest={acceptPaymentRequest}
-              waitingForTxn={waitingForTxn}
-              currentAccount={currentAccount}
-              type="received"
-            />
-          </Tabs.Content>
+                  <Flex direction="column" gap="2">
+                    <Text size="2" color="gray">
+                      Amount: <Text weight="bold">{request.amount} SUI</Text>
+                    </Text>
+                    <Text size="2" color="gray">
+                      From: {formatAddress(request.requester)}
+                    </Text>
+                    <Text size="2" color="gray">
+                      Due: {formatDate(request.dueDate)}
+                    </Text>
+                    <Text size="2" color="gray">
+                      Created: {formatDate(request.createdAt)}
+                    </Text>
+                  </Flex>
 
-          <Tabs.Content value="sent">
-            <RequestList
-              requests={sentRequests}
-              loading={loading}
-              onAcceptRequest={acceptPaymentRequest}
-              waitingForTxn={waitingForTxn}
-              currentAccount={currentAccount}
-              type="sent"
-            />
-          </Tabs.Content>
-        </Box>
-      </Tabs.Root>
+                  {!request.isPaid && (
+                    <Flex gap="2">
+                      <Button
+                        onClick={() =>
+                          acceptPaymentRequest(request.id, request.amount)
+                        }
+                        disabled={waitingForTxn === request.id}
+                        size="2"
+                        style={{ flex: 1 }}
+                      >
+                        {waitingForTxn === request.id ? (
+                          <Flex align="center" gap="2">
+                            <ClipLoader size={14} />
+                            <Text>Paying...</Text>
+                          </Flex>
+                        ) : (
+                          `Pay ${request.amount} SUI`
+                        )}
+                      </Button>
+                    </Flex>
+                  )}
+                </Flex>
+              </Box>
+            </Card>
+          ))
+        )}
+      </Flex>
 
       {txnResult && (
         <Box
@@ -212,133 +263,15 @@ export function PaymentRequests({
   );
 }
 
-// Helper component for rendering request lists
-function RequestList({
-  requests,
-  loading,
-  onAcceptRequest,
-  waitingForTxn,
-  currentAccount,
-  type,
-}: {
-  requests: PaymentRequest[];
-  loading: boolean;
-  onAcceptRequest: (requestId: string, amount: number) => void;
-  waitingForTxn: string | null;
-  currentAccount: any;
-  type: "received" | "sent";
-}) {
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString();
-  };
+// Helper functions
+function formatDate(timestamp: number) {
+  return new Date(timestamp).toLocaleDateString();
+}
 
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
+function formatAddress(address: string) {
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
 
-  const isOverdue = (dueDate: number) => {
-    return Date.now() > dueDate;
-  };
-
-  return (
-    <Flex direction="column" gap="3">
-      {loading ? (
-        <Card size="3">
-          <Box p="4" style={{ textAlign: "center" }}>
-            <Flex align="center" justify="center" gap="2">
-              <ClipLoader size={20} />
-              <Text size="3">Loading payment requests...</Text>
-            </Flex>
-          </Box>
-        </Card>
-      ) : requests.length === 0 ? (
-        <Card size="3">
-          <Box p="4" style={{ textAlign: "center" }}>
-            <Text size="3" color="gray">
-              {type === "received"
-                ? "No payment requests received. Others can request payments from you!"
-                : "Sent requests are transferred to recipients. You can't track them here."}
-            </Text>
-          </Box>
-        </Card>
-      ) : (
-        requests.map((request) => (
-          <Card key={request.id} size="3">
-            <Box p="4">
-              <Flex direction="column" gap="3">
-                <Flex justify="between" align="center">
-                  <Text size="3" weight="bold">
-                    {request.description}
-                  </Text>
-                  <Badge
-                    color={
-                      request.isPaid
-                        ? "green"
-                        : isOverdue(request.dueDate)
-                          ? "red"
-                          : "blue"
-                    }
-                  >
-                    {request.isPaid
-                      ? "Paid"
-                      : isOverdue(request.dueDate)
-                        ? "Overdue"
-                        : "Pending"}
-                  </Badge>
-                </Flex>
-
-                <Flex direction="column" gap="2">
-                  <Text size="2" color="gray">
-                    Amount: <Text weight="bold">{request.amount} SUI</Text>
-                  </Text>
-                  <Text size="2" color="gray">
-                    {type === "received" ? "From" : "To"}:{" "}
-                    {formatAddress(
-                      type === "received"
-                        ? request.requester
-                        : request.recipient,
-                    )}
-                  </Text>
-                  <Text size="2" color="gray">
-                    Due: {formatDate(request.dueDate)}
-                  </Text>
-                  <Text size="2" color="gray">
-                    Created: {formatDate(request.createdAt)}
-                  </Text>
-                </Flex>
-
-                {!request.isPaid && type === "received" && (
-                  <Flex gap="2">
-                    <Button
-                      onClick={() =>
-                        onAcceptRequest(request.id, request.amount)
-                      }
-                      disabled={waitingForTxn === request.id}
-                      size="2"
-                      style={{ flex: 1 }}
-                    >
-                      {waitingForTxn === request.id ? (
-                        <Flex align="center" gap="2">
-                          <ClipLoader size={14} />
-                          <Text>Paying...</Text>
-                        </Flex>
-                      ) : (
-                        `Pay ${request.amount} SUI`
-                      )}
-                    </Button>
-                  </Flex>
-                )}
-
-                {type === "sent" && (
-                  <Text size="2" color="gray" style={{ fontStyle: "italic" }}>
-                    Waiting for {formatAddress(request.recipient)} to pay...
-                  </Text>
-                )}
-              </Flex>
-            </Box>
-          </Card>
-        ))
-      )}
-    </Flex>
-  );
+function isOverdue(dueDate: number) {
+  return Date.now() > dueDate;
 }
