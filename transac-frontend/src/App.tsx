@@ -7,6 +7,7 @@ import { CreateCounter } from "./CreateCounter";
 import { PaymentSender } from "./PaymentSender";
 import { RequestPayment } from "./RequestPayment";
 import { PaymentRequests } from "./PaymentRequests";
+import { SendMoney } from "./SendMoney";
 
 function App() {
   const currentAccount = useCurrentAccount();
@@ -47,6 +48,7 @@ function App() {
               <Tabs.List>
                 <Tabs.Trigger value="requests">Payment Requests</Tabs.Trigger>
                 <Tabs.Trigger value="create">Create Request</Tabs.Trigger>
+                <Tabs.Trigger value="send">Send Money</Tabs.Trigger>
                 <Tabs.Trigger value="payment">Direct Payment</Tabs.Trigger>
                 <Tabs.Trigger value="counter">Counter</Tabs.Trigger>
               </Tabs.List>
@@ -62,6 +64,14 @@ function App() {
                       onRequestCreated={() =>
                         setRefreshRequests((prev) => prev + 1)
                       }
+                    />
+                  </Flex>
+                </Tabs.Content>
+
+                <Tabs.Content value="send">
+                  <Flex justify="center">
+                    <SendMoney
+                      onMoneySent={() => setRefreshRequests((prev) => prev + 1)}
                     />
                   </Flex>
                 </Tabs.Content>

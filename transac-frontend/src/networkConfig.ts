@@ -6,7 +6,9 @@ import {
   DEVNET_PAYMENT_PACKAGE_ID,
   TESTNET_PAYMENT_PACKAGE_ID,
   MAINNET_PAYMENT_PACKAGE_ID,
-  PAYMENT_REQUEST_MANAGER_ID,
+  DEVNET_PAYMENT_REQUEST_MANAGER_ID,
+  TESTNET_PAYMENT_REQUEST_MANAGER_ID,
+  MAINNET_PAYMENT_REQUEST_MANAGER_ID,
 } from "./constants.ts";
 import { createNetworkConfig } from "@mysten/dapp-kit";
 
@@ -17,7 +19,7 @@ const { networkConfig, useNetworkVariable, useNetworkVariables } =
       variables: {
         counterPackageId: DEVNET_COUNTER_PACKAGE_ID,
         paymentPackageId: DEVNET_PAYMENT_PACKAGE_ID,
-        paymentRequestManagerId: PAYMENT_REQUEST_MANAGER_ID,
+        paymentRequestManagerId: DEVNET_PAYMENT_REQUEST_MANAGER_ID,
       },
     },
     testnet: {
@@ -25,7 +27,7 @@ const { networkConfig, useNetworkVariable, useNetworkVariables } =
       variables: {
         counterPackageId: TESTNET_COUNTER_PACKAGE_ID,
         paymentPackageId: TESTNET_PAYMENT_PACKAGE_ID,
-        paymentRequestManagerId: PAYMENT_REQUEST_MANAGER_ID,
+        paymentRequestManagerId: TESTNET_PAYMENT_REQUEST_MANAGER_ID,
       },
     },
     mainnet: {
@@ -33,7 +35,7 @@ const { networkConfig, useNetworkVariable, useNetworkVariables } =
       variables: {
         counterPackageId: MAINNET_COUNTER_PACKAGE_ID,
         paymentPackageId: MAINNET_PAYMENT_PACKAGE_ID,
-        paymentRequestManagerId: PAYMENT_REQUEST_MANAGER_ID,
+        paymentRequestManagerId: MAINNET_PAYMENT_REQUEST_MANAGER_ID,
       },
     },
   });

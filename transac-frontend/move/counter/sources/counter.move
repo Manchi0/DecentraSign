@@ -23,6 +23,27 @@ module counter::payments {
         amount: u64,
     }
 
+    public struct MoneySent has copy, drop {
+        send_id: u64,
+        sender: address,
+        recipient: address,
+        amount: u64,
+        description: vector<u8>,
+    }
+
+    public struct MoneyAccepted has copy, drop {
+        send_id: u64,
+        sender: address,
+        recipient: address,
+        amount: u64,
+    }
+
+    public struct MoneyRejected has copy, drop {
+        sender: address,
+        recipient: address,
+        amount: u64,
+    }
+
     public struct PaymentSent has copy, drop {
         from: address,
         to: address,
@@ -39,6 +60,18 @@ module counter::payments {
         due_date: u64,
         is_paid: bool,
         created_at: u64,
+    }
+
+    // Send Money struct (for freelancers) - ESCROW VERSION
+    public struct SendMoney has key, store {
+        id: UID,
+        sender: address,
+        recipient: address,
+        amount: u64,
+        description: vector<u8>,
+        is_accepted: bool,
+        created_at: u64,
+        escrowed_payment: coin::Coin<SUI>, // Hold the payment in escrow
     }
 
     // Global state to track requests
@@ -105,6 +138,48 @@ module counter::payments {
         });
     }
 
+    // Send money to someone (for freelancers) - ESCROW VERSION
+    public fun send_money(
+        manager: &mut PaymentRequestManager,
+        recipient: address,
+        amount: u64,
+        description: vector<u8>,
+        mut payment_coin: coin::Coin<SUI>,
+        clock: &Clock,
+        ctx: &mut TxContext
+    ) {
+        let send_id = manager.next_request_id;
+        manager.next_request_id = send_id + 1;
+
+        // Split the payment coin and HOLD IT IN ESCROW
+        let escrowed_payment = coin::split(&mut payment_coin, amount, ctx);
+
+        let send_money = SendMoney {
+            id: object::new(ctx),
+            sender: tx_context::sender(ctx),
+            recipient,
+            amount,
+            description,
+            is_accepted: false,
+            created_at: 0x2::clock::timestamp_ms(clock),
+            escrowed_payment: escrowed_payment, // Store the escrowed payment
+        };
+
+        // Transfer the SendMoney object to the recipient
+        transfer::public_transfer(send_money, recipient);
+
+        // Return remaining coin to sender
+        transfer::public_transfer(payment_coin, tx_context::sender(ctx));
+
+        event::emit(MoneySent {
+            send_id,
+            sender: tx_context::sender(ctx),
+            recipient,
+            amount,
+            description,
+        });
+    }
+
     // Accept and pay a payment request
     public fun accept_payment_request(
         request: &mut PaymentRequest,
@@ -124,8 +199,8 @@ module counter::payments {
         // Split the payment
         let payment = coin::split(&mut payment_coin, amount, ctx);
         
-        // Transfer payment to recipient
-        transfer::public_transfer(payment, recipient);
+        // Transfer payment to requester (the person who created the request)
+        transfer::public_transfer(payment, requester);
         
         // Return remaining coin to payer
         transfer::public_transfer(payment_coin, tx_context::sender(ctx));
@@ -134,6 +209,77 @@ module counter::payments {
             request_id: 0, // We'll handle this differently
             payer: tx_context::sender(ctx),
             requester,
+            amount,
+        });
+    }
+
+    // Accept sent money (for freelancers) - ESCROW VERSION
+    public fun accept_send_money(
+        send_money: SendMoney,
+        ctx: &mut TxContext
+    ) {
+        assert!(!send_money.is_accepted, 0);
+        
+        let sender = send_money.sender;
+        let recipient = send_money.recipient;
+        let amount = send_money.amount;
+
+        // Extract the escrowed payment and transfer it to the recipient
+        let SendMoney {
+            id,
+            sender: _,
+            recipient: _,
+            amount: _,
+            description: _,
+            is_accepted: _,
+            created_at: _,
+            escrowed_payment,
+        } = send_money;
+        
+        transfer::public_transfer(escrowed_payment, recipient);
+        
+        // Destroy the SendMoney object
+        object::delete(id);
+
+        event::emit(MoneyAccepted {
+            send_id: 0, // We'll handle this differently
+            sender,
+            recipient,
+            amount,
+        });
+    }
+
+    // Reject sent money (for freelancers) - ESCROW VERSION
+    public fun reject_send_money(
+        send_money: SendMoney,
+        ctx: &mut TxContext
+    ) {
+        assert!(!send_money.is_accepted, 0);
+        
+        let sender = send_money.sender;
+        let recipient = send_money.recipient;
+        let amount = send_money.amount;
+
+        // Return the escrowed payment to the sender
+        let SendMoney {
+            id,
+            sender: _,
+            recipient: _,
+            amount: _,
+            description: _,
+            is_accepted: _,
+            created_at: _,
+            escrowed_payment,
+        } = send_money;
+        
+        transfer::public_transfer(escrowed_payment, sender);
+        
+        // Destroy the SendMoney object
+        object::delete(id);
+
+        event::emit(MoneyRejected {
+            sender,
+            recipient,
             amount,
         });
     }

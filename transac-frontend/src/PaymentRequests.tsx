@@ -31,6 +31,16 @@ interface PaymentRequest {
   createdAt: number;
 }
 
+interface SendMoney {
+  id: string;
+  sender: string;
+  recipient: string;
+  amount: number;
+  description: string;
+  isAccepted: boolean;
+  createdAt: number;
+}
+
 export function PaymentRequests({
   refreshTrigger,
 }: {
@@ -44,6 +54,7 @@ export function PaymentRequests({
   const [waitingForTxn, setWaitingForTxn] = useState<string | null>(null);
   const [txnResult, setTxnResult] = useState<string | null>(null);
   const [requests, setRequests] = useState<PaymentRequest[]>([]);
+  const [sendPayments, setSendPayments] = useState<SendMoney[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Separate received and sent requests
@@ -63,6 +74,21 @@ export function PaymentRequests({
       showOwner: true,
     },
   });
+
+  // Fetch send money objects from the blockchain
+  const { data: sendMoneyData, refetch: refetchSendMoney } = useSuiClientQuery(
+    "getOwnedObjects",
+    {
+      owner: currentAccount?.address || "",
+      filter: {
+        StructType: `${paymentPackageId}::payments::SendMoney`,
+      },
+      options: {
+        showContent: true,
+        showOwner: true,
+      },
+    },
+  );
 
   // Convert blockchain data to our interface
   useEffect(() => {
@@ -86,15 +112,37 @@ export function PaymentRequests({
         });
       setRequests(paymentRequests);
     }
+
+    if (sendMoneyData?.data) {
+      const sendPayments: SendMoney[] = sendMoneyData.data
+        .filter((obj) => obj.data?.content?.dataType === "moveObject")
+        .map((obj) => {
+          const fields = (obj.data?.content as any)?.fields;
+          return {
+            id: obj.data?.objectId || "",
+            sender: fields?.sender || "",
+            recipient: fields?.recipient || "",
+            amount: Number(fields?.amount || 0) / 1_000_000_000, // Convert from MIST to SUI
+            description: new TextDecoder().decode(
+              new Uint8Array(fields?.description || []),
+            ),
+            isAccepted: fields?.is_accepted || false,
+            createdAt: Number(fields?.created_at || 0),
+          };
+        });
+      setSendPayments(sendPayments);
+    }
+
     setLoading(false);
-  }, [objectsData]);
+  }, [objectsData, sendMoneyData]);
 
   // Refresh data when refreshTrigger changes
   useEffect(() => {
     if (refreshTrigger && refreshTrigger > 0) {
       refetch();
+      refetchSendMoney();
     }
-  }, [refreshTrigger, refetch]);
+  }, [refreshTrigger, refetch, refetchSendMoney]);
 
   const acceptPaymentRequest = (requestId: string, amount: number) => {
     if (!currentAccount) return;
@@ -142,10 +190,90 @@ export function PaymentRequests({
     );
   };
 
+  const acceptSendMoney = (sendMoneyId: string) => {
+    if (!currentAccount) return;
+
+    setWaitingForTxn(sendMoneyId);
+    setTxnResult(null);
+
+    const tx = new Transaction();
+
+    // Call the accept_send_money function
+    tx.moveCall({
+      arguments: [
+        tx.object(sendMoneyId), // Send money object
+      ],
+      target: `${paymentPackageId}::payments::accept_send_money`,
+    });
+
+    signAndExecute(
+      {
+        transaction: tx,
+        options: {
+          gasBudget: 200000000, // 0.2 SUI gas budget
+        },
+      },
+      {
+        onSuccess: (tx) => {
+          setTxnResult(`Send money accepted! Digest: ${tx.digest}`);
+          suiClient.waitForTransaction({ digest: tx.digest }).then(() => {
+            setWaitingForTxn(null);
+            refetchSendMoney(); // Refresh the data to show updated status
+          });
+        },
+        onError: (error) => {
+          setTxnResult(`Failed to accept send money: ${error.message}`);
+          setWaitingForTxn(null);
+        },
+      },
+    );
+  };
+
+  const rejectSendMoney = (sendMoneyId: string) => {
+    if (!currentAccount) return;
+
+    setWaitingForTxn(sendMoneyId);
+    setTxnResult(null);
+
+    const tx = new Transaction();
+
+    // Call the reject_send_money function
+    tx.moveCall({
+      arguments: [
+        tx.object(sendMoneyId), // Send money object
+      ],
+      target: `${paymentPackageId}::payments::reject_send_money`,
+    });
+
+    signAndExecute(
+      {
+        transaction: tx,
+        options: {
+          gasBudget: 200000000, // 0.2 SUI gas budget
+        },
+      },
+      {
+        onSuccess: (tx) => {
+          setTxnResult(
+            `Send money rejected! Money returned to sender. Digest: ${tx.digest}`,
+          );
+          suiClient.waitForTransaction({ digest: tx.digest }).then(() => {
+            setWaitingForTxn(null);
+            refetchSendMoney(); // Refresh the data to show updated status
+          });
+        },
+        onError: (error) => {
+          setTxnResult(`Failed to reject send money: ${error.message}`);
+          setWaitingForTxn(null);
+        },
+      },
+    );
+  };
+
   return (
     <Box>
       <Heading size="4" mb="4">
-        Payment Requests
+        Payment Requests & Send Money
       </Heading>
 
       <Flex direction="column" gap="3">
@@ -154,85 +282,156 @@ export function PaymentRequests({
             <Box p="4" style={{ textAlign: "center" }}>
               <Flex align="center" justify="center" gap="2">
                 <ClipLoader size={20} />
-                <Text size="3">Loading payment requests...</Text>
+                <Text size="3">Loading payments...</Text>
               </Flex>
             </Box>
           </Card>
-        ) : receivedRequests.length === 0 ? (
+        ) : receivedRequests.length === 0 && sendPayments.length === 0 ? (
           <Card size="3">
             <Box p="4" style={{ textAlign: "center" }}>
               <Text size="3" color="gray">
-                No payment requests received. Others can request payments from
-                you!
+                No payment requests or send money received. Others can request
+                payments from you or send you money!
               </Text>
             </Box>
           </Card>
         ) : (
-          receivedRequests.map((request) => (
-            <Card key={request.id} size="3">
-              <Box p="4">
-                <Flex direction="column" gap="3">
-                  <Flex justify="between" align="center">
-                    <Text size="3" weight="bold">
-                      {request.description}
-                    </Text>
-                    <Badge
-                      color={
-                        request.isPaid
-                          ? "green"
-                          : isOverdue(request.dueDate)
-                            ? "red"
-                            : "blue"
-                      }
-                    >
-                      {request.isPaid
-                        ? "Paid"
-                        : isOverdue(request.dueDate)
-                          ? "Overdue"
-                          : "Pending"}
-                    </Badge>
-                  </Flex>
-
-                  <Flex direction="column" gap="2">
-                    <Text size="2" color="gray">
-                      Amount: <Text weight="bold">{request.amount} SUI</Text>
-                    </Text>
-                    <Text size="2" color="gray">
-                      From: {formatAddress(request.requester)}
-                    </Text>
-                    <Text size="2" color="gray">
-                      Due: {formatDate(request.dueDate)}
-                    </Text>
-                    <Text size="2" color="gray">
-                      Created: {formatDate(request.createdAt)}
-                    </Text>
-                  </Flex>
-
-                  {!request.isPaid && (
-                    <Flex gap="2">
-                      <Button
-                        onClick={() =>
-                          acceptPaymentRequest(request.id, request.amount)
+          <>
+            {/* Payment Requests (Landlord requests) */}
+            {receivedRequests.map((request) => (
+              <Card key={request.id} size="3">
+                <Box p="4">
+                  <Flex direction="column" gap="3">
+                    <Flex justify="between" align="center">
+                      <Text size="3" weight="bold">
+                        {request.description}
+                      </Text>
+                      <Badge
+                        color={
+                          request.isPaid
+                            ? "green"
+                            : isOverdue(request.dueDate)
+                              ? "red"
+                              : "blue"
                         }
-                        disabled={waitingForTxn === request.id}
-                        size="2"
-                        style={{ flex: 1 }}
                       >
-                        {waitingForTxn === request.id ? (
-                          <Flex align="center" gap="2">
-                            <ClipLoader size={14} />
-                            <Text>Paying...</Text>
-                          </Flex>
-                        ) : (
-                          `Pay ${request.amount} SUI`
-                        )}
-                      </Button>
+                        {request.isPaid
+                          ? "Paid"
+                          : isOverdue(request.dueDate)
+                            ? "Overdue"
+                            : "Pending"}
+                      </Badge>
                     </Flex>
-                  )}
-                </Flex>
-              </Box>
-            </Card>
-          ))
+
+                    <Flex direction="column" gap="2">
+                      <Text size="2" color="gray">
+                        Amount: <Text weight="bold">{request.amount} SUI</Text>
+                      </Text>
+                      <Text size="2" color="gray">
+                        From: {formatAddress(request.requester)}
+                      </Text>
+                      <Text size="2" color="gray">
+                        Due: {formatDate(request.dueDate)}
+                      </Text>
+                      <Text size="2" color="gray">
+                        Created: {formatDate(request.createdAt)}
+                      </Text>
+                    </Flex>
+
+                    {!request.isPaid && (
+                      <Flex gap="2">
+                        <Button
+                          onClick={() =>
+                            acceptPaymentRequest(request.id, request.amount)
+                          }
+                          disabled={waitingForTxn === request.id}
+                          size="2"
+                          style={{ flex: 1 }}
+                        >
+                          {waitingForTxn === request.id ? (
+                            <Flex align="center" gap="2">
+                              <ClipLoader size={14} />
+                              <Text>Paying...</Text>
+                            </Flex>
+                          ) : (
+                            `Pay ${request.amount} SUI`
+                          )}
+                        </Button>
+                      </Flex>
+                    )}
+                  </Flex>
+                </Box>
+              </Card>
+            ))}
+
+            {/* Send Money (Freelancer payments) */}
+            {sendPayments.map((sendPayment) => (
+              <Card key={sendPayment.id} size="3">
+                <Box p="4">
+                  <Flex direction="column" gap="3">
+                    <Flex justify="between" align="center">
+                      <Text size="3" weight="bold">
+                        {sendPayment.description}
+                      </Text>
+                      <Badge color={sendPayment.isAccepted ? "green" : "blue"}>
+                        {sendPayment.isAccepted ? "Accepted" : "Pending"}
+                      </Badge>
+                    </Flex>
+
+                    <Flex direction="column" gap="2">
+                      <Text size="2" color="gray">
+                        Amount:{" "}
+                        <Text weight="bold">{sendPayment.amount} SUI</Text>
+                      </Text>
+                      <Text size="2" color="gray">
+                        From: {formatAddress(sendPayment.sender)}
+                      </Text>
+                      <Text size="2" color="gray">
+                        Created: {formatDate(sendPayment.createdAt)}
+                      </Text>
+                    </Flex>
+
+                    {!sendPayment.isAccepted && (
+                      <Flex gap="2">
+                        <Button
+                          onClick={() => acceptSendMoney(sendPayment.id)}
+                          disabled={waitingForTxn === sendPayment.id}
+                          size="2"
+                          style={{ flex: 1 }}
+                        >
+                          {waitingForTxn === sendPayment.id ? (
+                            <Flex align="center" gap="2">
+                              <ClipLoader size={14} />
+                              <Text>Accepting...</Text>
+                            </Flex>
+                          ) : (
+                            `Accept ${sendPayment.amount} SUI`
+                          )}
+                        </Button>
+                        <Button
+                          onClick={() => rejectSendMoney(sendPayment.id)}
+                          disabled={waitingForTxn === sendPayment.id}
+                          size="2"
+                          color="red"
+                          variant="outline"
+                          style={{ flex: 1 }}
+                        >
+                          {waitingForTxn === sendPayment.id ? (
+                            <Flex align="center" gap="2">
+                              <ClipLoader size={14} />
+                              <Text>Rejecting...</Text>
+                            </Flex>
+                          ) : (
+                            "Reject"
+                          )}
+                        </Button>
+                      </Flex>
+                    )}
+                  </Flex>
+                </Box>
+              </Card>
+            ))}
+          </>
         )}
       </Flex>
 
