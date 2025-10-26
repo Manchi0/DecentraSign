@@ -1,11 +1,10 @@
 /* Import distinctive typography - avoiding overused fonts */
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700;900&family=Manrope:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700;900&family=Manrope:wght@400;500;600;700&display=swap");
 
 /* Review Page - Legal Document meets Blockchain Aesthetic */
 .review-container {
   min-height: 100vh;
-  background:
-    linear-gradient(135deg, #0B1420 0%, #1a2332 50%, #0B1420 100%),
+  background: linear-gradient(135deg, #0b1420 0%, #1a2332 50%, #0b1420 100%),
     repeating-linear-gradient(
       0deg,
       transparent,
@@ -20,26 +19,34 @@
 
 /* Ambient glow effect */
 .review-container::before {
-  content: '';
+  content: "";
   position: fixed;
   top: -50%;
   right: -20%;
   width: 80%;
   height: 80%;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(245, 158, 11, 0.15) 0%,
+    transparent 70%
+  );
   filter: blur(60px);
   pointer-events: none;
   z-index: 0;
 }
 
 .review-container::after {
-  content: '';
+  content: "";
   position: fixed;
   bottom: -30%;
   left: -20%;
   width: 60%;
   height: 60%;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.1) 0%,
+    transparent 70%
+  );
   filter: blur(80px);
   pointer-events: none;
   z-index: 0;
@@ -70,9 +77,9 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 1.25rem;
-  color: #FBF8F3;
+  color: #fbf8f3;
 }
 
 /* Header */
@@ -84,17 +91,17 @@
 }
 
 .review-title {
-  font-family: 'Crimson Pro', serif;
+  font-family: "Crimson Pro", serif;
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 900;
-  color: #FBF8F3;
+  color: #fbf8f3;
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
   text-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
 }
 
 .review-subtitle {
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 1.125rem;
   color: rgba(251, 248, 243, 0.7);
   font-weight: 400;
@@ -103,14 +110,17 @@
 
 /* Sections */
 .review-section {
-  background: linear-gradient(135deg, rgba(26, 35, 50, 0.8) 0%, rgba(11, 20, 32, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(26, 35, 50, 0.8) 0%,
+    rgba(11, 20, 32, 0.9) 100%
+  );
   border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 24px;
   padding: 2.5rem;
   margin-bottom: 2rem;
   backdrop-filter: blur(20px);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
   position: relative;
@@ -118,13 +128,14 @@
 }
 
 .review-section::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg,
+  background: linear-gradient(
+    90deg,
     transparent 0%,
     rgba(245, 158, 11, 0.5) 50%,
     transparent 100%
@@ -134,16 +145,15 @@
 .review-section:hover {
   border-color: rgba(245, 158, 11, 0.4);
   transform: translateY(-2px);
-  box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.5),
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .section-title {
-  font-family: 'Crimson Pro', serif;
+  font-family: "Crimson Pro", serif;
   font-size: 2rem;
   font-weight: 700;
-  color: #F59E0B;
+  color: #f59e0b;
   margin-bottom: 2rem;
   letter-spacing: -0.01em;
   display: flex;
@@ -152,29 +162,103 @@
 }
 
 .section-title::before {
-  content: '';
+  content: "";
   width: 4px;
   height: 2rem;
-  background: linear-gradient(180deg, #F59E0B 0%, #D97706 100%);
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
   border-radius: 2px;
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
 }
 
+/* Contract Info Section */
+.contract-info-section {
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.15) 0%,
+    rgba(5, 150, 105, 0.1) 100%
+  );
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.contract-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(11, 20, 32, 0.4);
+  border-radius: 12px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.info-label {
+  font-family: "Manrope", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(251, 248, 243, 0.6);
+}
+
+.info-value {
+  font-family: "Manrope", sans-serif;
+  font-size: 1rem;
+  color: #fbf8f3;
+  word-break: break-all;
+}
+
+/* Upload Info Section */
+.upload-info-section {
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.15) 0%,
+    rgba(37, 99, 235, 0.1) 100%
+  );
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.upload-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.share-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.share-link:hover {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
 /* Summary Section */
 .summary-section {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.15) 0%,
+    rgba(217, 119, 6, 0.1) 100%
+  );
   border-color: rgba(245, 158, 11, 0.3);
 }
 
 .summary-text {
-  font-family: 'Crimson Pro', serif;
+  font-family: "Crimson Pro", serif;
   font-size: 1.25rem;
   line-height: 1.8;
-  color: #FBF8F3;
+  color: #fbf8f3;
   font-style: italic;
   padding: 1.5rem;
   background: rgba(11, 20, 32, 0.5);
-  border-left: 4px solid #F59E0B;
+  border-left: 4px solid #f59e0b;
   border-radius: 8px;
 }
 
@@ -211,12 +295,12 @@
 }
 
 .field-label {
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 0.875rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #F59E0B;
+  color: #f59e0b;
 }
 
 .edit-actions {
@@ -247,11 +331,11 @@
 
 .edit-btn:hover {
   background: rgba(245, 158, 11, 0.1);
-  color: #F59E0B;
+  color: #f59e0b;
 }
 
 .save-btn {
-  color: #10B981;
+  color: #10b981;
 }
 
 .save-btn:hover {
@@ -259,7 +343,7 @@
 }
 
 .cancel-btn {
-  color: #EF4444;
+  color: #ef4444;
 }
 
 .cancel-btn:hover {
@@ -281,9 +365,9 @@
 }
 
 .field-value {
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 1rem;
-  color: #FBF8F3;
+  color: #fbf8f3;
   margin-bottom: 0.5rem;
   line-height: 1.6;
 }
@@ -296,10 +380,10 @@
 }
 
 .amount-display {
-  font-family: 'Crimson Pro', serif;
+  font-family: "Crimson Pro", serif;
   font-size: 2rem;
   font-weight: 700;
-  color: #F59E0B;
+  color: #f59e0b;
   margin: 0;
 }
 
@@ -323,19 +407,19 @@
 }
 
 .field-input {
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   background: rgba(251, 248, 243, 0.05);
   border: 1px solid rgba(245, 158, 11, 0.3);
   border-radius: 8px;
   padding: 0.75rem 1rem;
   font-size: 1rem;
-  color: #FBF8F3;
+  color: #fbf8f3;
   transition: all 0.2s ease;
 }
 
 .field-input:focus {
   outline: none;
-  border-color: #F59E0B;
+  border-color: #f59e0b;
   background: rgba(251, 248, 243, 0.08);
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
 }
@@ -346,7 +430,11 @@
 
 /* Wallet Section */
 .wallet-section {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.15) 0%,
+    rgba(37, 99, 235, 0.1) 100%
+  );
   border-color: rgba(59, 130, 246, 0.3);
 }
 
@@ -355,13 +443,13 @@
 }
 
 .wallet-input {
-  font-family: 'Monaco', 'Courier New', monospace;
+  font-family: "Monaco", "Courier New", monospace;
   background: rgba(11, 20, 32, 0.6);
   border: 2px solid rgba(59, 130, 246, 0.3);
   border-radius: 12px;
   padding: 1rem 1.25rem;
   font-size: 0.95rem;
-  color: #FBF8F3;
+  color: #fbf8f3;
   width: 100%;
   transition: all 0.2s ease;
   letter-spacing: 0.02em;
@@ -369,7 +457,7 @@
 
 .wallet-input:focus {
   outline: none;
-  border-color: #3B82F6;
+  border-color: #3b82f6;
   background: rgba(11, 20, 32, 0.8);
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
@@ -379,7 +467,7 @@
 }
 
 .wallet-hint {
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 0.875rem;
   color: rgba(251, 248, 243, 0.5);
   margin-top: 0.75rem;
@@ -396,7 +484,7 @@
 }
 
 .btn {
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 1.125rem;
   font-weight: 600;
   padding: 1rem 3rem;
@@ -410,7 +498,7 @@
 }
 
 .btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -428,8 +516,8 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-  color: #0B1420;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #0b1420;
   box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
   position: relative;
   z-index: 1;
@@ -446,7 +534,7 @@
 
 .btn-secondary {
   background: transparent;
-  color: #FBF8F3;
+  color: #fbf8f3;
   border: 2px solid rgba(251, 248, 243, 0.3);
 }
 
@@ -471,21 +559,20 @@
 .success-icon {
   width: 120px;
   height: 120px;
-  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 2rem;
-  box-shadow:
-    0 20px 60px rgba(16, 185, 129, 0.4),
-    0 0 0 20px rgba(16, 185, 129, 0.1),
-    0 0 0 40px rgba(16, 185, 129, 0.05);
+  box-shadow: 0 20px 60px rgba(16, 185, 129, 0.4),
+    0 0 0 20px rgba(16, 185, 129, 0.1), 0 0 0 40px rgba(16, 185, 129, 0.05);
   animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -501,16 +588,16 @@
 }
 
 .success-title {
-  font-family: 'Crimson Pro', serif;
+  font-family: "Crimson Pro", serif;
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 900;
-  color: #FBF8F3;
+  color: #fbf8f3;
   margin-bottom: 1rem;
   text-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
 }
 
 .success-message {
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 1.25rem;
   color: rgba(251, 248, 243, 0.7);
   max-width: 600px;
@@ -537,7 +624,7 @@
 }
 
 .summary-label {
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -546,10 +633,10 @@
 }
 
 .summary-value {
-  font-family: 'Crimson Pro', serif;
+  font-family: "Crimson Pro", serif;
   font-size: 2.5rem;
   font-weight: 700;
-  color: #10B981;
+  color: #10b981;
 }
 
 .success-actions {

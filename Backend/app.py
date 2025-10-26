@@ -112,7 +112,8 @@ def convert_to_frontend_format(parsed_data):
         if dl.get('final'):
             penalty_amount = 0
             if 'penalties' in parsed_data and parsed_data['penalties']:
-                penalty_amount = parsed_data['penalties'].get('late_fee_per_day', 0) or 0
+                penalty_amount = parsed_data['penalties'].get(
+                    'late_fee_per_day', 0) or 0
 
             deadlines_list.append({
                 'milestone': 'Project Completion',
@@ -150,7 +151,8 @@ def convert_to_frontend_format(parsed_data):
             summary += f" by {deadlines_list[0]['date']}"
         summary += "."
     else:
-        summary = parsed_data.get('contract_type', 'Contract') + " - parsed successfully"
+        summary = parsed_data.get(
+            'contract_type', 'Contract') + " - parsed successfully"
 
     # Extract Sui wallet addresses (with validation)
     wallet_addresses = []
@@ -166,7 +168,8 @@ def convert_to_frontend_format(parsed_data):
             print(f"💰 Payer address found: {payer_addr}")
             if payer_addr:
                 is_valid = is_valid_sui_address(payer_addr)
-                print(f"   ✓ Validation result: {is_valid} (length: {len(payer_addr) if payer_addr else 0})")
+                print(
+                    f"   ✓ Validation result: {is_valid} (length: {len(payer_addr) if payer_addr else 0})")
                 if is_valid:
                     wallet_addresses.append({
                         'name': payer.get('name', 'Payer'),
@@ -182,7 +185,8 @@ def convert_to_frontend_format(parsed_data):
             print(f"📥 Receiver address found: {receiver_addr}")
             if receiver_addr:
                 is_valid = is_valid_sui_address(receiver_addr)
-                print(f"   ✓ Validation result: {is_valid} (length: {len(receiver_addr) if receiver_addr else 0})")
+                print(
+                    f"   ✓ Validation result: {is_valid} (length: {len(receiver_addr) if receiver_addr else 0})")
                 if is_valid:
                     wallet_addresses.append({
                         'name': receiver.get('name', 'Receiver'),
@@ -198,7 +202,8 @@ def convert_to_frontend_format(parsed_data):
             print(f"👤 Client address found: {client_addr}")
             if client_addr:
                 is_valid = is_valid_sui_address(client_addr)
-                print(f"   ✓ Validation result: {is_valid} (length: {len(client_addr) if client_addr else 0})")
+                print(
+                    f"   ✓ Validation result: {is_valid} (length: {len(client_addr) if client_addr else 0})")
                 if is_valid and not any(w['name'] == client.get('name') for w in wallet_addresses):
                     wallet_addresses.append({
                         'name': client.get('name', 'Client'),
@@ -213,7 +218,8 @@ def convert_to_frontend_format(parsed_data):
             print(f"🔧 Contractor address found: {contractor_addr}")
             if contractor_addr:
                 is_valid = is_valid_sui_address(contractor_addr)
-                print(f"   ✓ Validation result: {is_valid} (length: {len(contractor_addr) if contractor_addr else 0})")
+                print(
+                    f"   ✓ Validation result: {is_valid} (length: {len(contractor_addr) if contractor_addr else 0})")
                 if is_valid and not any(w['name'] == contractor.get('name') for w in wallet_addresses):
                     wallet_addresses.append({
                         'name': contractor.get('name', 'Contractor'),
@@ -222,9 +228,11 @@ def convert_to_frontend_format(parsed_data):
                     })
                     print(f"   ✅ Added contractor address")
 
-        print(f"\n🎯 Total valid wallet addresses extracted: {len(wallet_addresses)}")
+        print(
+            f"\n🎯 Total valid wallet addresses extracted: {len(wallet_addresses)}")
         if wallet_addresses:
-            print(f"📝 Addresses: {[w['address'][:10] + '...' for w in wallet_addresses]}")
+            print(
+                f"📝 Addresses: {[w['address'][:10] + '...' for w in wallet_addresses]}")
 
     # Ambiguous terms (not in new format, keep empty)
     ambiguous_terms = []
@@ -278,7 +286,8 @@ def parse_contract():
             return jsonify({"error": "Template parser not yet integrated with new backend. Please use AI method."}), 400
 
         # Save uploaded file temporarily
-        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], f"temp_{datetime.now().timestamp()}_{file.filename}")
+        temp_path = os.path.join(
+            app.config['UPLOAD_FOLDER'], f"temp_{datetime.now().timestamp()}_{file.filename}")
         file.save(temp_path)
 
         try:
