@@ -1,0 +1,154 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnp.js
+.yarn/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+*.db
+*.sqlite
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# IDE files
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.iml
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.tmproj
+
+# Build outputs
+dist/
+build/
+out/
+*.log
+logs/
+*.pid
+*.seed
+*.pid.lock
+.next/
+.nuxt/
+.cache/
+public/build/
+
+# Testing
+coverage/
+.nyc_output/
+test-results/
+junit.xml
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+*.orig
+
+# Security & Credentials
+*.pem
+*.key
+*.cert
+*.p12
+*.keystore
+secrets/
+credentials/
+.ssh/
+private/
+
+# Database
+*.sql
+*.sqlite3
+*.db
+
+# Blockchain & Web3 specific
+contracts/artifacts/
+contracts/cache/
+.openzeppelin/
+hardhat-cache/
+typechain/
+typechain-types/
+
+# Documentation build
+docs/_build/
+site/
+
+# Claude Code specific - keep the structure but ignore temp files
+.claude/.temp/
+.claude/*.tmp
+.claude/*.bak
+.claude/
+
+# Ignore all Markdown files except README.md
+*.md
+!README.md

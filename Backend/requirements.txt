@@ -1,0 +1,45 @@
+# PDF Processing (existing)
+PyMuPDF>=1.23.0
+pytesseract>=0.3.10
+Pillow>=10.0.0
+
+# Sui Blockchain Integration
+pysui>=0.50.0
+
+# Scheduling and Async
+schedule>=1.2.0
+asyncio>=3.4.3
+aiohttp>=3.9.0
+
+# Data Processing
+python-dateutil>=2.8.2
+pytz>=2023.3
+
+# API and Web
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.4.2
+
+# Database (optional, for storing lease data)
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0  # PostgreSQL
+# OR
+# pymongo>=4.5.0  # MongoDB
+
+# Notifications
+twilio>=8.10.0  # SMS notifications
+sendgrid>=6.11.0  # Email notifications
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-mock>=3.12.0
+
+# Logging and Monitoring
+python-json-logger>=2.0.0
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# Utilities
+requests>=2.31.0
