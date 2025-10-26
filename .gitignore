@@ -1,0 +1,4 @@
+/frontend/node_modules
+/frontend/.env
+/move/build
+/seal-app/frontend/node_modules
