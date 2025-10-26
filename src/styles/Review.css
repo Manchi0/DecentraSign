@@ -1,24 +1,24 @@
 /* Import distinctive typography - avoiding overused fonts */
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700;900&family=Manrope:wght@400;500;600;700&display=swap');
 
-/* Review Page - Legal Document meets Blockchain Aesthetic */
+/* Review Page - Warm Terracotta & Gold Aesthetic */
 .review-container {
   min-height: 100vh;
   background:
-    linear-gradient(135deg, #0B1420 0%, #1a2332 50%, #0B1420 100%),
+    linear-gradient(135deg, #2D3436 0%, #3E2723 50%, #2D3436 100%),
     repeating-linear-gradient(
       0deg,
       transparent,
       transparent 2px,
-      rgba(251, 191, 36, 0.03) 2px,
-      rgba(251, 191, 36, 0.03) 4px
+      rgba(212, 116, 74, 0.04) 2px,
+      rgba(212, 116, 74, 0.04) 4px
     );
   background-size: 100% 100%, 100px 100px;
   position: relative;
   overflow-x: hidden;
 }
 
-/* Ambient glow effect */
+/* Ambient glow effect - Sunset terracotta */
 .review-container::before {
   content: '';
   position: fixed;
@@ -26,7 +26,7 @@
   right: -20%;
   width: 80%;
   height: 80%;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(212, 116, 74, 0.18) 0%, transparent 70%);
   filter: blur(60px);
   pointer-events: none;
   z-index: 0;
@@ -39,7 +39,7 @@
   left: -20%;
   width: 60%;
   height: 60%;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(243, 156, 18, 0.15) 0%, transparent 70%);
   filter: blur(80px);
   pointer-events: none;
   z-index: 0;
@@ -72,7 +72,7 @@
   min-height: 100vh;
   font-family: 'Manrope', sans-serif;
   font-size: 1.25rem;
-  color: #FBF8F3;
+  color: #FAF7F0;
 }
 
 /* Header */
@@ -80,31 +80,31 @@
   text-align: center;
   margin-bottom: 4rem;
   padding-bottom: 2rem;
-  border-bottom: 2px solid rgba(245, 158, 11, 0.2);
+  border-bottom: 2px solid rgba(212, 116, 74, 0.3);
 }
 
 .review-title {
   font-family: 'Crimson Pro', serif;
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 900;
-  color: #FBF8F3;
+  color: #FAF7F0;
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
-  text-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+  text-shadow: 0 4px 20px rgba(243, 156, 18, 0.4);
 }
 
 .review-subtitle {
   font-family: 'Manrope', sans-serif;
   font-size: 1.125rem;
-  color: rgba(251, 248, 243, 0.7);
+  color: rgba(250, 247, 240, 0.7);
   font-weight: 400;
   letter-spacing: 0.01em;
 }
 
 /* Sections */
 .review-section {
-  background: linear-gradient(135deg, rgba(26, 35, 50, 0.8) 0%, rgba(11, 20, 32, 0.9) 100%);
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: linear-gradient(135deg, rgba(62, 39, 35, 0.8) 0%, rgba(45, 52, 54, 0.9) 100%);
+  border: 1px solid rgba(212, 116, 74, 0.25);
   border-radius: 24px;
   padding: 2.5rem;
   margin-bottom: 2rem;
@@ -112,7 +112,7 @@
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
@@ -126,16 +126,16 @@
   height: 1px;
   background: linear-gradient(90deg,
     transparent 0%,
-    rgba(245, 158, 11, 0.5) 50%,
+    rgba(243, 156, 18, 0.6) 50%,
     transparent 100%
   );
 }
 
 .review-section:hover {
-  border-color: rgba(245, 158, 11, 0.4);
+  border-color: rgba(243, 156, 18, 0.5);
   transform: translateY(-2px);
   box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.5),
+    0 12px 40px rgba(243, 156, 18, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
@@ -143,7 +143,7 @@
   font-family: 'Crimson Pro', serif;
   font-size: 2rem;
   font-weight: 700;
-  color: #F59E0B;
+  color: #D4744A;
   margin-bottom: 2rem;
   letter-spacing: -0.01em;
   display: flex;
@@ -155,26 +155,26 @@
   content: '';
   width: 4px;
   height: 2rem;
-  background: linear-gradient(180deg, #F59E0B 0%, #D97706 100%);
+  background: linear-gradient(180deg, #D4744A 0%, #F39C12 100%);
   border-radius: 2px;
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 10px rgba(243, 156, 18, 0.4);
 }
 
 /* Summary Section */
 .summary-section {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.1) 100%);
-  border-color: rgba(245, 158, 11, 0.3);
+  background: linear-gradient(135deg, rgba(212, 116, 74, 0.18) 0%, rgba(243, 156, 18, 0.12) 100%);
+  border-color: rgba(212, 116, 74, 0.4);
 }
 
 .summary-text {
   font-family: 'Crimson Pro', serif;
   font-size: 1.25rem;
   line-height: 1.8;
-  color: #FBF8F3;
+  color: #FAF7F0;
   font-style: italic;
   padding: 1.5rem;
-  background: rgba(11, 20, 32, 0.5);
-  border-left: 4px solid #F59E0B;
+  background: rgba(45, 52, 54, 0.4);
+  border-left: 2px solid rgba(212, 116, 74, 0.5);
   border-radius: 8px;
 }
 
@@ -186,8 +186,8 @@
 }
 
 .field-card {
-  background: rgba(11, 20, 32, 0.6);
-  border: 1px solid rgba(251, 248, 243, 0.1);
+  background: rgba(62, 39, 35, 0.6);
+  border: 1px solid rgba(250, 247, 240, 0.1);
   border-radius: 16px;
   padding: 1.5rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -195,10 +195,10 @@
 }
 
 .field-card:hover {
-  background: rgba(11, 20, 32, 0.8);
-  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(62, 39, 35, 0.8);
+  border-color: rgba(212, 116, 74, 0.4);
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 8px 24px rgba(212, 116, 74, 0.15);
 }
 
 .field-header {
@@ -207,7 +207,7 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(251, 248, 243, 0.1);
+  border-bottom: 1px solid rgba(250, 247, 240, 0.1);
 }
 
 .field-label {
@@ -216,7 +216,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #F59E0B;
+  color: #D4744A;
 }
 
 .edit-actions {
@@ -242,12 +242,12 @@
 }
 
 .edit-btn {
-  color: rgba(251, 248, 243, 0.6);
+  color: rgba(250, 247, 240, 0.6);
 }
 
 .edit-btn:hover {
-  background: rgba(245, 158, 11, 0.1);
-  color: #F59E0B;
+  background: rgba(212, 116, 74, 0.15);
+  color: #D4744A;
 }
 
 .save-btn {
@@ -283,14 +283,14 @@
 .field-value {
   font-family: 'Manrope', sans-serif;
   font-size: 1rem;
-  color: #FBF8F3;
+  color: #FAF7F0;
   margin-bottom: 0.5rem;
   line-height: 1.6;
 }
 
 .field-description {
   font-size: 0.875rem;
-  color: rgba(251, 248, 243, 0.5);
+  color: rgba(250, 247, 240, 0.5);
   font-style: italic;
   margin-top: 0.75rem;
 }
@@ -299,8 +299,9 @@
   font-family: 'Crimson Pro', serif;
   font-size: 2rem;
   font-weight: 700;
-  color: #F59E0B;
+  color: #F39C12;
   margin: 0;
+  text-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
 }
 
 /* Field Inputs */
@@ -324,30 +325,30 @@
 
 .field-input {
   font-family: 'Manrope', sans-serif;
-  background: rgba(251, 248, 243, 0.05);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(250, 247, 240, 0.05);
+  border: 1px solid rgba(212, 116, 74, 0.3);
   border-radius: 8px;
   padding: 0.75rem 1rem;
   font-size: 1rem;
-  color: #FBF8F3;
-  transition: all 0.2s ease;
+  color: #FAF7F0;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .field-input:focus {
   outline: none;
-  border-color: #F59E0B;
-  background: rgba(251, 248, 243, 0.08);
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+  border-color: #F39C12;
+  background: rgba(250, 247, 240, 0.08);
+  box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.15);
 }
 
 .field-input::placeholder {
-  color: rgba(251, 248, 243, 0.4);
+  color: rgba(250, 247, 240, 0.4);
 }
 
-/* Wallet Section */
+/* Wallet Section - Gold theme for value/payment */
 .wallet-section {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%);
-  border-color: rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, rgba(243, 156, 18, 0.15) 0%, rgba(212, 116, 74, 0.1) 100%);
+  border-color: rgba(243, 156, 18, 0.35);
 }
 
 .wallet-input-container {
@@ -356,32 +357,32 @@
 
 .wallet-input {
   font-family: 'Monaco', 'Courier New', monospace;
-  background: rgba(11, 20, 32, 0.6);
-  border: 2px solid rgba(59, 130, 246, 0.3);
+  background: rgba(62, 39, 35, 0.6);
+  border: 2px solid rgba(243, 156, 18, 0.4);
   border-radius: 12px;
   padding: 1rem 1.25rem;
   font-size: 0.95rem;
-  color: #FBF8F3;
+  color: #FAF7F0;
   width: 100%;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   letter-spacing: 0.02em;
 }
 
 .wallet-input:focus {
   outline: none;
-  border-color: #3B82F6;
-  background: rgba(11, 20, 32, 0.8);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  border-color: #F39C12;
+  background: rgba(62, 39, 35, 0.8);
+  box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.2);
 }
 
 .wallet-input::placeholder {
-  color: rgba(251, 248, 243, 0.3);
+  color: rgba(250, 247, 240, 0.3);
 }
 
 .wallet-hint {
   font-family: 'Manrope', sans-serif;
   font-size: 0.875rem;
-  color: rgba(251, 248, 243, 0.5);
+  color: rgba(250, 247, 240, 0.5);
   margin-top: 0.75rem;
   font-style: italic;
 }
@@ -428,16 +429,14 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-  color: #0B1420;
-  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
-  position: relative;
-  z-index: 1;
+  background: linear-gradient(135deg, #D4744A 0%, #B85C38 100%);
+  color: white;
+  box-shadow: 0 4px 20px rgba(212, 116, 74, 0.3);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 8px 30px rgba(212, 116, 74, 0.4);
 }
 
 .btn-primary:active {
@@ -445,14 +444,14 @@
 }
 
 .btn-secondary {
-  background: transparent;
-  color: #FBF8F3;
-  border: 2px solid rgba(251, 248, 243, 0.3);
+background: linear-gradient(135deg, #da9e65 0%, #d5a48c 100%);
+  color: white;
+  border: 1px solid rgba(250, 247, 240, 0.25);
 }
 
 .btn-secondary:hover {
-  border-color: rgba(251, 248, 243, 0.6);
-  background: rgba(251, 248, 243, 0.05);
+  border-color: rgba(250, 247, 240, 0.5);
+  background: rgba(250, 247, 240, 0.05);
 }
 
 /* Success Screen */
@@ -471,16 +470,16 @@
 .success-icon {
   width: 120px;
   height: 120px;
-  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  background: linear-gradient(135deg, #5EC269 0%, #4CAF50 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 2rem;
   box-shadow:
-    0 20px 60px rgba(16, 185, 129, 0.4),
-    0 0 0 20px rgba(16, 185, 129, 0.1),
-    0 0 0 40px rgba(16, 185, 129, 0.05);
+    0 20px 60px rgba(94, 194, 105, 0.4),
+    0 0 0 20px rgba(94, 194, 105, 0.1),
+    0 0 0 40px rgba(94, 194, 105, 0.05);
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -504,15 +503,15 @@
   font-family: 'Crimson Pro', serif;
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 900;
-  color: #FBF8F3;
+  color: #FAF7F0;
   margin-bottom: 1rem;
-  text-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+  text-shadow: 0 4px 20px rgba(243, 156, 18, 0.4);
 }
 
 .success-message {
   font-family: 'Manrope', sans-serif;
   font-size: 1.25rem;
-  color: rgba(251, 248, 243, 0.7);
+  color: rgba(250, 247, 240, 0.7);
   max-width: 600px;
   margin-bottom: 3rem;
   line-height: 1.6;
@@ -523,10 +522,11 @@
   gap: 3rem;
   margin-bottom: 3rem;
   padding: 2rem 3rem;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: linear-gradient(135deg, rgba(212, 116, 74, 0.15) 0%, rgba(243, 156, 18, 0.1) 100%);
+  border: 1px solid rgba(212, 116, 74, 0.3);
   border-radius: 16px;
   backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(212, 116, 74, 0.2);
 }
 
 .summary-item {
@@ -541,7 +541,7 @@
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(251, 248, 243, 0.6);
+  color: rgba(250, 247, 240, 0.6);
   font-weight: 600;
 }
 
@@ -549,7 +549,8 @@
   font-family: 'Crimson Pro', serif;
   font-size: 2.5rem;
   font-weight: 700;
-  color: #10B981;
+  color: #F39C12;
+  text-shadow: 0 2px 12px rgba(243, 156, 18, 0.4);
 }
 
 .success-actions {

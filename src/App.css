@@ -165,25 +165,40 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 40px var(--soft-shadow);
+  /* Animation removed */
 }
 
 .btn-secondary {
-  background: transparent;
+  background: linear-gradient(135deg, #FFF8F0 0%, #FFE8DC 100%);
   color: var(--terracotta);
-  border: 2px solid var(--terracotta);
+  border: 2px solid rgba(180, 180, 180, 0.2);
 }
 
 .btn-secondary:hover {
-  background: var(--terracotta);
-  color: white;
+  background: linear-gradient(135deg, #FFE8DC 0%, #FFD8CC 100%);
+  color: var(--terracotta);
   transform: translateY(-2px);
 }
 
 .btn-large {
   padding: 1.25rem 3rem;
   font-size: 1.125rem;
+}
+
+.btn.golder,
+.btn-secondary.golder {
+  background: linear-gradient(135deg, #F39C12 0%, #E67E22 100%);
+  color: white;
+  border: 2px solid #F39C12;
+  box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3);
+}
+
+.btn.golder:hover,
+.btn-secondary.golder:hover {
+  background: linear-gradient(135deg, #E67E22 0%, #D35400 100%);
+  border-color: #E67E22;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(243, 156, 18, 0.4);
 }
 
 /* Landing Page */
@@ -198,10 +213,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   position: relative;
-  background:
-    radial-gradient(circle at 20% 50%, rgba(212, 116, 74, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 50%, rgba(139, 154, 121, 0.1) 0%, transparent 50%),
-    linear-gradient(135deg, var(--cream) 0%, var(--off-white) 100%);
+  background: linear-gradient(135deg, var(--cream) 0%, var(--off-white) 100%);
   overflow: hidden;
 }
 
@@ -1593,11 +1605,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .placed-signature img {
   display: block;
-  background: white;
+  /* Transparent background for signature */
   border: 2px solid var(--blockchain-blue);
   border-radius: 8px;
   padding: 0.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* Add subtle drop shadow to make transparent signature visible on any background */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
 }
 
 .remove-signature-btn {

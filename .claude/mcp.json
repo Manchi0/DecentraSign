@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "sui-docs": {
+      "command": "node",
+      "args": [
+        "/Users/manasmunjial/Documents/CalHacks25/siuuuuuuuuuuuuuu/docusign-clone/mcp-server/dist/index.js"
+      ],
+      "env": {},
+      "disabled": false
+    }
+  }
+}

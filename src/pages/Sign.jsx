@@ -412,7 +412,7 @@ function Sign() {
                       width: 600,
                       height: 200
                     }}
-                    backgroundColor="white"
+                    backgroundColor="rgba(255, 255, 255, 0.05)"
                   />
                 </div>
 

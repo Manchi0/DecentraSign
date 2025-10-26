@@ -51,7 +51,8 @@ function FloatingSignaturePad({ isOpen, onClose, onCreateSignature }) {
 
   const handleCreateSignature = () => {
     if (signaturePadRef.current && !signaturePadRef.current.isEmpty()) {
-      const dataUrl = signaturePadRef.current.toDataURL('image/png')
+      // Export as PNG with transparent background and full quality
+      const dataUrl = signaturePadRef.current.toDataURL('image/png', 1.0)
       onCreateSignature(dataUrl)
       handleClear()
     }

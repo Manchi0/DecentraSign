@@ -1,11 +1,11 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { Document, Page, pdfjs } from 'react-pdf'
+import { pdfjs } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 import SignatureWizard from '../components/SignatureWizard'
-import FloatingSignaturePad from '../components/FloatingSignaturePad'
+import PDFWithSignature from '../components/PDFWithSignature'
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
@@ -23,13 +23,11 @@ function Upload() {
   const [pdfError, setPdfError] = useState(null)
   const [uploadBoxExpanded, setUploadBoxExpanded] = useState(true)
 
-  // Wizard and signature state
+  // Wizard state
   const [wizardOpen, setWizardOpen] = useState(false)
   const [requiresSignature, setRequiresSignature] = useState(false)
   const [isAlreadySigned, setIsAlreadySigned] = useState(false)
   const [needsToSign, setNeedsToSign] = useState(false)
-  const [signaturePadOpen, setSignaturePadOpen] = useState(false)
-  const [signatures, setSignatures] = useState([])
 
   const fileInputRef = useRef(null)
   const navigate = useNavigate()
@@ -84,81 +82,10 @@ function Upload() {
     setPdfError('Failed to load PDF. Please try another file.')
   }
 
-  const changePage = (offset) => {
-    setPageNumber(prevPageNumber => prevPageNumber + offset)
-  }
-
-  const previousPage = () => {
-    changePage(-1)
-  }
-
-  const nextPage = () => {
-    changePage(1)
-  }
-
   const handleWizardComplete = ({ requiresSignature, isAlreadySigned, needsToSign }) => {
     setRequiresSignature(requiresSignature)
     setIsAlreadySigned(isAlreadySigned)
     setNeedsToSign(needsToSign)
-
-    if (needsToSign) {
-      // Open signature pad if user needs to sign
-      setTimeout(() => setSignaturePadOpen(true), 300)
-    }
-  }
-
-  const handleCreateSignature = (signatureDataUrl) => {
-    // Add signature to draggable list with better starting position
-    // Position it in the center of the PDF viewer
-    const pdfWidth = Math.min(window.innerWidth * 0.8, 800)
-    const signatureWidth = 200
-    const centerX = (pdfWidth - signatureWidth) / 2
-    const centerY = 300 // Position in middle-lower area of document
-
-    setSignatures([...signatures, {
-      id: Date.now(),
-      dataUrl: signatureDataUrl,
-      position: { x: centerX, y: centerY },
-      width: signatureWidth,
-      height: 80, // Default height
-      placed: false
-    }])
-  }
-
-  const handlePlaceSignature = (signatureId, position) => {
-    setSignatures(signatures.map(sig =>
-      sig.id === signatureId ? { ...sig, position, placed: true } : sig
-    ))
-  }
-
-  const handleResizeSignature = (signatureId, width, height) => {
-    setSignatures(signatures.map(sig =>
-      sig.id === signatureId ? { ...sig, width, height } : sig
-    ))
-  }
-
-  const handleRemoveSignature = (signatureId) => {
-    setSignatures(signatures.filter(sig => sig.id !== signatureId))
-  }
-
-  const handleSaveDocument = () => {
-    // Check if at least one signature is placed
-    const placedSignatures = signatures.filter(sig => sig.placed)
-    if (placedSignatures.length === 0) {
-      alert('Please place at least one signature on the document')
-      return
-    }
-
-    // Save signatures to localStorage for later use
-    localStorage.setItem('documentSignatures', JSON.stringify(placedSignatures))
-
-    // Close signature pad and continue to parsing
-    setSignaturePadOpen(false)
-
-    // Show success message
-    alert(`✓ ${placedSignatures.length} signature(s) saved! You can now proceed with parsing.`)
-
-    // Signatures are saved in state and localStorage, ready for parsing/review
   }
 
   const handleParseContract = async (method) => {
@@ -225,13 +152,11 @@ function Upload() {
     setPdfError(null)
     setUploadBoxExpanded(true) // Reset to expanded state
 
-    // Reset wizard and signature state
+    // Reset wizard state
     setWizardOpen(false)
     setRequiresSignature(false)
     setIsAlreadySigned(false)
     setNeedsToSign(false)
-    setSignaturePadOpen(false)
-    setSignatures([])
   }
 
   return (
@@ -310,7 +235,7 @@ function Upload() {
         </motion.div>
 
         <AnimatePresence>
-          {/* PDF Viewer - Shows immediately after upload, before wizard */}
+          {/* PDF Viewer with Direct Drawing */}
           {file && fileUrl && (
             <motion.div
               className="pdf-viewer-section"
@@ -318,205 +243,19 @@ function Upload() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.2 }}
             >
-              <h3 className="pdf-viewer-title">Document Preview</h3>
-              <div className="pdf-viewer-container" style={{ position: 'relative' }}>
-                {pdfError ? (
-                  <div className="pdf-error">
-                    <span className="error-icon">⚠️</span>
-                    <p>{pdfError}</p>
-                  </div>
-                ) : (
-                  <>
-                    <Document
-                      file={fileUrl}
-                      onLoadSuccess={onDocumentLoadSuccess}
-                      onLoadError={onDocumentLoadError}
-                      loading={
-                        <div className="pdf-loading">
-                          <div className="loading-spinner"></div>
-                          <p>Loading PDF...</p>
-                        </div>
-                      }
-                    >
-                      <Page
-                        pageNumber={pageNumber}
-                        width={Math.min(window.innerWidth * 0.8, 800)}
-                        renderTextLayer={true}
-                        renderAnnotationLayer={true}
-                      />
-                    </Document>
-
-                    {/* Draggable Signatures on PDF */}
-                    {signatures.length > 0 && (
-                      <AnimatePresence>
-                        {signatures.map((signature) => (
-                          <motion.div
-                            key={signature.id}
-                            className="draggable-signature"
-                            drag
-                            dragMomentum={false}
-                            dragElastic={0}
-                            initial={{ opacity: 0, scale: 0.5 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.5 }}
-                            style={{
-                              position: 'absolute',
-                              left: signature.position.x,
-                              top: signature.position.y,
-                              width: signature.width,
-                              height: signature.height,
-                              cursor: 'grab',
-                              zIndex: 1000
-                            }}
-                            onDragEnd={(event, info) => {
-                              handlePlaceSignature(signature.id, {
-                                x: signature.position.x + info.offset.x,
-                                y: signature.position.y + info.offset.y
-                              })
-                            }}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95, cursor: 'grabbing' }}
-                          >
-                            <img
-                              src={signature.dataUrl}
-                              alt="Signature"
-                              className="signature-image"
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'contain',
-                                pointerEvents: 'none',
-                                background: 'white',
-                                padding: '8px',
-                                borderRadius: '8px',
-                                boxShadow: signature.placed ? 'none' : '0 4px 12px rgba(0,0,0,0.15)',
-                                border: signature.placed ? 'none' : '2px dashed #4A90E2'
-                              }}
-                            />
-                            
-                            {/* Resize handles - only show when not placed */}
-                            {!signature.placed && (
-                              <>
-                                {/* Corner resize handle */}
-                                <div
-                                  style={{
-                                    position: 'absolute',
-                                    bottom: '0',
-                                    right: '0',
-                                    width: '20px',
-                                    height: '20px',
-                                    background: '#4A90E2',
-                                    cursor: 'nwse-resize',
-                                    borderRadius: '0 0 8px 0',
-                                    zIndex: 1001
-                                  }}
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation()
-                                    const startX = e.clientX
-                                    const startY = e.clientY
-                                    const startWidth = signature.width
-                                    const startHeight = signature.height
-                                    
-                                    const handleMouseMove = (moveEvent) => {
-                                      const deltaX = moveEvent.clientX - startX
-                                      const deltaY = moveEvent.clientY - startY
-                                      const newWidth = Math.max(100, startWidth + deltaX)
-                                      const newHeight = Math.max(40, startHeight + deltaY)
-                                      handleResizeSignature(signature.id, newWidth, newHeight)
-                                    }
-                                    
-                                    const handleMouseUp = () => {
-                                      document.removeEventListener('mousemove', handleMouseMove)
-                                      document.removeEventListener('mouseup', handleMouseUp)
-                                    }
-                                    
-                                    document.addEventListener('mousemove', handleMouseMove)
-                                    document.addEventListener('mouseup', handleMouseUp)
-                                  }}
-                                >
-                                  <div style={{
-                                    position: 'absolute',
-                                    bottom: '2px',
-                                    right: '2px',
-                                    width: '0',
-                                    height: '0',
-                                    borderLeft: '8px solid transparent',
-                                    borderBottom: '8px solid white'
-                                  }} />
-                                </div>
-                              </>
-                            )}
-
-                            <motion.button
-                              className="remove-signature-btn"
-                              onClick={() => handleRemoveSignature(signature.id)}
-                              whileHover={{ scale: 1.2, rotate: 90 }}
-                              whileTap={{ scale: 0.9 }}
-                              style={{
-                                position: 'absolute',
-                                top: '-10px',
-                                right: '-10px',
-                                width: '24px',
-                                height: '24px',
-                                borderRadius: '50%',
-                                background: '#ff4444',
-                                color: 'white',
-                                border: 'none',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '18px',
-                                lineHeight: '1'
-                              }}
-                            >
-                              ×
-                            </motion.button>
-                            {!signature.placed && (
-                              <div className="signature-hint-label" style={{
-                                position: 'absolute',
-                                bottom: '-25px',
-                                left: '50%',
-                                transform: 'translateX(-50%)',
-                                background: '#4A90E2',
-                                color: 'white',
-                                padding: '4px 8px',
-                                borderRadius: '4px',
-                                fontSize: '12px',
-                                whiteSpace: 'nowrap'
-                              }}>
-                                Drag to place • Resize from corner
-                              </div>
-                            )}
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    )}
-
-                    {numPages && numPages > 1 && (
-                      <div className="pdf-controls">
-                        <button
-                          className="pdf-nav-btn"
-                          onClick={previousPage}
-                          disabled={pageNumber <= 1}
-                        >
-                          ← Previous
-                        </button>
-                        <span className="page-info">
-                          Page {pageNumber} of {numPages}
-                        </span>
-                        <button
-                          className="pdf-nav-btn"
-                          onClick={nextPage}
-                          disabled={pageNumber >= numPages}
-                        >
-                          Next →
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+              <h3 className="pdf-viewer-title">Draw Your Signature Directly on the Document</h3>
+              {pdfError ? (
+                <div className="pdf-error">
+                  <span className="error-icon">⚠️</span>
+                  <p>{pdfError}</p>
+                </div>
+              ) : (
+                <PDFWithSignature
+                  fileUrl={fileUrl}
+                  onDocumentLoadSuccess={onDocumentLoadSuccess}
+                  onDocumentLoadError={onDocumentLoadError}
+                />
+              )}
             </motion.div>
           )}
 
@@ -565,14 +304,6 @@ function Upload() {
                 <button className="btn btn-secondary" onClick={resetUpload}>
                   Start Over
                 </button>
-                {needsToSign && (
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => setSignaturePadOpen(true)}
-                  >
-                    {signatures.length > 0 ? 'Add More Signatures' : 'Add Signature'}
-                  </button>
-                )}
               </div>
             </motion.div>
           )}
@@ -677,51 +408,6 @@ function Upload() {
           onClose={() => setWizardOpen(false)}
           onComplete={handleWizardComplete}
         />
-
-        {/* Floating Signature Pad */}
-        <AnimatePresence>
-          {signaturePadOpen && (
-            <FloatingSignaturePad
-              isOpen={signaturePadOpen}
-              onClose={() => setSignaturePadOpen(false)}
-              onCreateSignature={handleCreateSignature}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Save Document Button */}
-        {file && fileUrl && signatures.length > 0 && signatures.some(sig => sig.placed) && (
-          <motion.div
-            className="save-document-bar"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            style={{
-              position: 'fixed',
-              bottom: '20px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              background: 'white',
-              padding: '20px',
-              borderRadius: '12px',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px',
-              zIndex: 1001
-            }}
-          >
-            <p style={{ margin: 0, fontWeight: '500' }}>✓ {signatures.filter(sig => sig.placed).length} signature(s) placed</p>
-            <motion.button
-              className="btn btn-primary btn-large"
-              onClick={handleSaveDocument}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              💾 Save Document & Continue
-            </motion.button>
-          </motion.div>
-        )}
       </div>
     </div>
   )
