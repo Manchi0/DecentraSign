@@ -5,6 +5,8 @@ import { useState } from "react";
 import { Counter } from "./Counter";
 import { CreateCounter } from "./CreateCounter";
 import { PaymentSender } from "./PaymentSender";
+import { RequestPayment } from "./RequestPayment";
+import { PaymentRequests } from "./PaymentRequests";
 
 function App() {
   const currentAccount = useCurrentAccount();
@@ -12,6 +14,7 @@ function App() {
     const hash = window.location.hash.slice(1);
     return isValidSuiObjectId(hash) ? hash : null;
   });
+  const [refreshRequests, setRefreshRequests] = useState(0);
 
   return (
     <>
@@ -25,7 +28,7 @@ function App() {
         }}
       >
         <Box>
-          <Heading>DecentraSign - Payment dApp</Heading>
+          <Heading>DecentraSign - Request & Pay dApp</Heading>
         </Box>
 
         <Box>
@@ -40,13 +43,29 @@ function App() {
           style={{ background: "var(--gray-a2)", minHeight: 500 }}
         >
           {currentAccount ? (
-            <Tabs.Root defaultValue="payment">
+            <Tabs.Root defaultValue="requests">
               <Tabs.List>
-                <Tabs.Trigger value="payment">Payment</Tabs.Trigger>
+                <Tabs.Trigger value="requests">Payment Requests</Tabs.Trigger>
+                <Tabs.Trigger value="create">Create Request</Tabs.Trigger>
+                <Tabs.Trigger value="payment">Direct Payment</Tabs.Trigger>
                 <Tabs.Trigger value="counter">Counter</Tabs.Trigger>
               </Tabs.List>
 
               <Box pt="3">
+                <Tabs.Content value="requests">
+                  <PaymentRequests refreshTrigger={refreshRequests} />
+                </Tabs.Content>
+
+                <Tabs.Content value="create">
+                  <Flex justify="center">
+                    <RequestPayment
+                      onRequestCreated={() =>
+                        setRefreshRequests((prev) => prev + 1)
+                      }
+                    />
+                  </Flex>
+                </Tabs.Content>
+
                 <Tabs.Content value="payment">
                   <Flex justify="center">
                     <PaymentSender />

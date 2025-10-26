@@ -2,7 +2,6 @@ import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
   useSuiClient,
-  useSuiClientQuery,
 } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
 import {
@@ -14,30 +13,32 @@ import {
   Card,
   Box,
   Separator,
+  TextArea,
 } from "@radix-ui/themes";
 import { useNetworkVariable } from "./networkConfig";
 import { useState } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
 
-export function PaymentSender() {
+export function RequestPayment({
+  onRequestCreated,
+}: {
+  onRequestCreated?: () => void;
+}) {
   const paymentPackageId = useNetworkVariable("paymentPackageId");
+  const paymentRequestManagerId = useNetworkVariable("paymentRequestManagerId");
   const suiClient = useSuiClient();
   const currentAccount = useCurrentAccount();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
 
-  const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [recipient, setRecipient] = useState("");
   const [waitingForTxn, setWaitingForTxn] = useState(false);
   const [txnResult, setTxnResult] = useState<string | null>(null);
 
-  // Get user's SUI balance
-  const { data: balanceData } = useSuiClientQuery("getBalance", {
-    owner: currentAccount?.address || "",
-    coinType: "0x2::sui::SUI",
-  });
-
-  const executePayment = () => {
-    if (!recipient || !amount || !currentAccount) return;
+  const createPaymentRequest = () => {
+    if (!amount || !description || !recipient || !currentAccount) return;
 
     setWaitingForTxn(true);
     setTxnResult(null);
@@ -47,13 +48,20 @@ export function PaymentSender() {
     // Convert SUI to MIST (1 SUI = 1,000,000,000 MIST)
     const amountInMist = Math.floor(parseFloat(amount) * 1_000_000_000);
 
-    // Get the user's SUI coin
-    const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(amountInMist)]);
+    // Convert due date to timestamp (assuming it's in YYYY-MM-DD format)
+    const dueDateTimestamp = new Date(dueDate).getTime();
 
-    // Call the pay_sui function
+    // Call the create_payment_request function
     tx.moveCall({
-      arguments: [coin, tx.pure.u64(amountInMist), tx.pure.address(recipient)],
-      target: `${paymentPackageId}::payments::pay_sui`,
+      arguments: [
+        tx.object(paymentRequestManagerId), // Manager object
+        tx.pure.address(recipient), // Recipient address
+        tx.pure.u64(amountInMist),
+        tx.pure.vector("u8", Array.from(new TextEncoder().encode(description))),
+        tx.pure.u64(dueDateTimestamp),
+        tx.object("0x6"), // Clock object
+      ],
+      target: `${paymentPackageId}::payments::create_payment_request`,
     });
 
     signAndExecute(
@@ -65,43 +73,51 @@ export function PaymentSender() {
       },
       {
         onSuccess: (tx) => {
-          setTxnResult(`Transaction successful! Digest: ${tx.digest}`);
+          setTxnResult(`Payment request created! Digest: ${tx.digest}`);
           suiClient.waitForTransaction({ digest: tx.digest }).then(() => {
             setWaitingForTxn(false);
+            // Clear form
+            setAmount("");
+            setDescription("");
+            setRecipient("");
+            setDueDate("");
+            // Notify parent component to refresh requests
+            onRequestCreated?.();
           });
         },
         onError: (error) => {
-          setTxnResult(`Transaction failed: ${error.message}`);
+          setTxnResult(`Failed to create request: ${error.message}`);
           setWaitingForTxn(false);
         },
       },
     );
   };
 
-  const balance = balanceData
-    ? Number(balanceData.totalBalance) / 1_000_000_000
-    : 0; // Convert from MIST to SUI
-
   return (
     <Card size="3" style={{ maxWidth: 500 }}>
       <Box p="4">
         <Heading size="4" mb="3">
-          Send SUI Payment
+          Create Payment Request
         </Heading>
 
         <Flex direction="column" gap="3">
           <Box>
             <Text size="2" weight="bold" mb="1">
-              Your Balance
+              Amount (SUI)
             </Text>
-            <Text size="3">{balance.toFixed(4)} SUI</Text>
+            <TextField.Root
+              placeholder="1.0"
+              type="number"
+              step="0.001"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              disabled={waitingForTxn}
+            />
           </Box>
-
-          <Separator />
 
           <Box>
             <Text size="2" weight="bold" mb="1">
-              Recipient Address
+              Request From (Address)
             </Text>
             <TextField.Root
               placeholder="0x..."
@@ -113,25 +129,33 @@ export function PaymentSender() {
 
           <Box>
             <Text size="2" weight="bold" mb="1">
-              Amount (SUI)
+              Description
+            </Text>
+            <TextArea
+              placeholder="e.g., Monthly rent payment"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              disabled={waitingForTxn}
+              rows={3}
+            />
+          </Box>
+
+          <Box>
+            <Text size="2" weight="bold" mb="1">
+              Due Date
             </Text>
             <TextField.Root
-              placeholder="0.1"
-              type="number"
-              step="0.001"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
               disabled={waitingForTxn}
             />
           </Box>
 
           <Button
-            onClick={executePayment}
+            onClick={createPaymentRequest}
             disabled={
-              !recipient ||
-              !amount ||
-              waitingForTxn ||
-              balance < parseFloat(amount || "0")
+              !amount || !description || !recipient || !dueDate || waitingForTxn
             }
             size="3"
             style={{ width: "100%" }}
@@ -139,10 +163,10 @@ export function PaymentSender() {
             {waitingForTxn ? (
               <Flex align="center" gap="2">
                 <ClipLoader size={16} />
-                <Text>Sending...</Text>
+                <Text>Creating Request...</Text>
               </Flex>
             ) : (
-              "Send Payment"
+              "Create Payment Request"
             )}
           </Button>
 
@@ -150,7 +174,7 @@ export function PaymentSender() {
             <Box
               p="3"
               style={{
-                background: txnResult.includes("successful")
+                background: txnResult.includes("created")
                   ? "var(--green-3)"
                   : "var(--red-3)",
                 borderRadius: "var(--radius-2)",
@@ -159,7 +183,7 @@ export function PaymentSender() {
               <Text
                 size="2"
                 style={{
-                  color: txnResult.includes("successful")
+                  color: txnResult.includes("created")
                     ? "var(--green-11)"
                     : "var(--red-11)",
                 }}
